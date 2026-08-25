@@ -409,37 +409,51 @@ window.checkPassword = function() {
     }
 };
 
-//成就表
+// 1. 成就表與讀取 localStorage 紀錄
 if (!setup.achievements) {
     setup.achievements = {
-        "battery": { name: "尋求刺激...？", desc: "舔電池兩口", hits: "你怎麼會想嚐這個？還是兩次？", unlocked: false },
-        "byebye": { name: "一無所有", desc: "把除了電池和手電筒的東西都丟進沒開燈的暗室", hits: "除非開燈，不然都撿不回來了呢。", unlocked: false },
-     	"TV": { name: "這裡沒有電視", desc: "對著暗室按下電視遙控器", hits: "或許黑暗中會有電視......？", unlocked: false },
-      	"AC": { name: "這裡沒有冷氣機", desc: "對著暗室按下冷氣遙控器。", hits: "或許黑暗中會有冷氣機......？", unlocked: false },
-      	"mouse1": { name: "老鼠們的救世主", desc: "餵食老鼠已開封的麵包", hits: "雖然你不吃，但可以給牠們吃。", unlocked: false },
-     	"mouse2": { name: "老鼠界的詐騙犯", desc: "丟給老鼠未開封的麵包", hits: "只要能達成目的就夠了。說不定牠們能自己打開包裝？", unlocked: false },
-      	"patient": { name: "毅力", desc: "日記密碼錯誤5次", hits: "大不了嘗試10000次。", unlocked: false },
-      	"police": { name: "孤立無援", desc: "報警3次", hits: "如果再多打幾通......", unlocked: false },
-      	"thetruth" : { name: "真相", desc: "找回全部記憶", hits: "你想起了一切。", unlocked: false },
-      	"end1": { name: "通往一無所知的未來", desc: "達成結局1", hits: "誰管那些有的沒的？", unlocked: false },
-      	"end2": { name: "不知者的罪與罰", desc: "達成結局2", hits: "得救了......嗎？", unlocked: false },
-      	"end3": { name: "背負真相的未亡人", desc: "達成結局3", hits: "已經什麼都不想思考了。", unlocked: false },
-      	"end4": { name: "終結，然後是新生", desc: "達成結局4", hits: "必須給一切做個了斷。", unlocked: false }
+        "battery": { name: "尋求刺激...?", desc: "舔電池兩口", hits: "你怎麼會想嚐這個？還是兩次？", unlocked: false },
+        "byebye": { name: "一無所有", desc: "把除了電池和手電筒的東西都丟進沒燈的暗室", hits: "除非開燈，不然都撿不回來了呢。", unlocked: false },
+        "TV": { name: "這裡沒有電視", desc: "對著暗室按下電視遙控器", hits: "或許黑暗中有電視......？", unlocked: false },
+        "AC": { name: "這裡沒有冷氣機", desc: "對著暗室按下冷氣遙控器", hits: "或許黑暗中有冷氣機......？", unlocked: false },
+        "mouse1": { name: "老鼠們的救世主", desc: "餵食老鼠已開封的麵包", hits: "雖然你不吃，但可以給牠們吃。", unlocked: false },
+        "mouse2": { name: "老鼠界的詐騙犯", desc: "丟給老鼠未開封的麵包", hits: "只要能達成目的就夠了。說不定牠們自己打開包裝？", unlocked: false },
+        "patient": { name: "毅力", desc: "日記密碼錯誤5次", hits: "大不了嘗試10000次。", unlocked: false },
+        "police": { name: "孤立無援", desc: "報警3次", hits: "如果再多打幾通......", unlocked: false },
+        "thetruth": { name: "真相", desc: "找回全部記憶", hits: "你想起了一切。", unlocked: false },
+        "end1": { name: "通往一無所知的未來", desc: "達成結尾1", hits: "誰管那些有的沒的？", unlocked: false },
+        "end2": { name: "不知者的罪與罰", desc: "達成結尾2", hits: "得救了......嗎？", unlocked: false },
+        "end3": { name: "背負真相的未亡人", desc: "達成結尾3", hits: "已經什麼都不想思考了。", unlocked: false },
+        "end4": { name: "終結，然後是新生", desc: "達成結尾4", hits: "必須給一切做個了斷。", unlocked: false }
     };
 }
 
-// 解鎖成就
+// 2.同步 localStorage
+let savedAchievements = JSON.parse(localStorage.getItem('my_game_achievements') || '{}');
+for (let id in savedAchievements) {
+    if (setup.achievements[id]) {
+        setup.achievements[id].unlocked = true;
+    }
+}
+
+// 3. 解鎖成就
 window.unlockAchievement = function(id) {
     if (setup.achievements[id] && !setup.achievements[id].unlocked) {
+        // 更新當前狀態
         setup.achievements[id].unlocked = true;
+        
+        // 寫入瀏覽器
+        let saved = JSON.parse(localStorage.getItem('my_game_achievements') || '{}');
+        saved[id] = true;
+        localStorage.setItem('my_game_achievements', JSON.stringify(saved));
         
         let achName = setup.achievements[id].name;
 
         // 通知
         let notif = document.createElement("div");
         notif.style.position = "fixed";
-        notif.style.top = "20px";    
-        notif.style.left = "20px";  
+        notif.style.top = "20px";
+        notif.style.left = "20px";
         notif.style.backgroundColor = "#333";
         notif.style.color = "#ffeb3b";
         notif.style.padding = "12px 20px";
@@ -455,7 +469,8 @@ window.unlockAchievement = function(id) {
             setTimeout(() => notif.remove(), 500);
         }, 3000);
     }
-}
+};
+
 </script><tw-passagedata pid="1" name="start" tags="" position="1550,775" size="100,100">你的名字是？（會在遊戲中使用）
 &lt;div id=&#39;supportercode-form&#39;&gt;\
 &lt;&lt;textbox &#39;$name&#39; &#39;&#39; autofocus&gt;&gt; \
@@ -491,6 +506,7 @@ window.unlockAchievement = function(id) {
 &lt;&lt;set $gf to &quot;莉莉&quot;&gt;&gt;
 &lt;&lt;set $npc to &quot;大衛&quot;&gt;&gt;
 &lt;&lt;set $police to 0&gt;&gt;
+&lt;&lt;set $rem to 0&gt;&gt;
 
 &lt;&lt;set $rooms to {
     &#39;客廳&#39;: {
@@ -554,7 +570,17 @@ window.unlockAchievement = function(id) {
         },
         &#39;物品&#39;: []
     }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="wake" tags="" position="1550,875" size="100,100">你在一個陌生的地方醒來。嘗試坐起身的你突然感到頭痛欲裂。
+}&gt;&gt;
+
+if (!window.hasLoadedAchievements) {
+    let saved = JSON.parse(localStorage.getItem(&#39;my_game_achievements&#39;) || &#39;{}&#39;);
+    for (let id in saved) {
+        if (setup.achievements[id]) {
+            setup.achievements[id].unlocked = true;
+        }
+    }
+    window.hasLoadedAchievements = true;
+}</tw-passagedata><tw-passagedata pid="2" name="wake" tags="" position="1550,875" size="100,100">你在一個陌生的地方醒來。嘗試坐起身的你突然感到頭痛欲裂。
 好痛。「好吧，看來我知道了這不是夢。」你在心裡想著。
 
 你強忍著頭痛坐起身，觀察了一下周遭，這看起來像是某人的房間。你注意到從門縫到你坐著的這個地方有一條血痕，那似乎是拖行的痕跡。那痕跡一直延續到你剛才躺的位置。
@@ -968,7 +994,7 @@ setTimeout(function() {
 
 [[成就]]
 
-[[去評價]]</tw-passagedata><tw-passagedata pid="14" name="物品欄" tags="" position="1525,175" size="100,100">&lt;&lt;if $inventory.length == 0&gt;&gt;\
+[[給我反饋]]</tw-passagedata><tw-passagedata pid="14" name="物品欄" tags="" position="1525,175" size="100,100">&lt;&lt;if $inventory.length == 0&gt;&gt;\
 你目前還沒有任何物品。
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;if $canuse&gt;&gt;\
@@ -980,7 +1006,13 @@ setTimeout(function() {
 &lt;&lt;else&gt;&gt;\
 你目前無法進行其他操作。
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;link &quot;返回&quot;&gt;&gt;&lt;&lt;goto $currentRoom&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="手電筒" tags="" position="1300,300" size="100,100">&lt;&lt;set $text to &quot;&quot;&gt;&gt;\ 
+&lt;&lt;link &quot;返回&quot;&gt;&gt;&lt;&lt;goto $currentRoom&gt;&gt;&lt;&lt;/link&gt;&gt;
+
+當前找回記憶進度：
+&lt;meter @value=&quot;$rem&quot; min=&quot;0&quot; max=&quot;100&quot; high=&quot;50&quot; low=&quot;25&quot;&gt;&lt;/meter&gt;
+&lt;&lt;if not $firstDarkroom&gt;&gt;&lt;&lt;if not $IDread&gt;&gt;你還不知道暗室裡的屍體是否和你有關。&lt;&lt;else&gt;&gt;@@color:gray;你想你知道那具屍體的身分@@&lt;&lt;if not $diaryread&gt;&gt;，但你不敢保證，也不確定和你有什麼關係。&lt;&lt;else&gt;&gt;@@color:gray;，也已經明白他為什麼出現在這裡@@。&lt;&lt;/if&gt;&gt;&lt;&lt;/if&gt;&gt;&lt;&lt;else&gt;&gt;你還有需要探索的地方。&lt;&lt;/if&gt;&gt;
+&lt;&lt;if not $diaryread&gt;&gt;你還不知道自己身在何處。&lt;&lt;else&gt;&gt;@@color:gray;你已經知道了這裡正是你和凱爾原先住的房子。@@&lt;&lt;/if&gt;&gt;
+&lt;&lt;if not $documentread&gt;&gt;你還不知道自己身上發生了什麼。&lt;&lt;else&gt;&gt;@@color:gray;你已經知道自己參與什麼樣的實驗，還有艾利斯塔對你做了什麼。@@&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="手電筒" tags="" position="1300,300" size="100,100">&lt;&lt;set $text to &quot;&quot;&gt;&gt;\ 
 &lt;&lt;if $flashlight&gt;&gt;\
 	&lt;&lt;set $text to &quot;從亮度來看，裡面的電池似乎很新。&quot;&gt;&gt;\
 &lt;&lt;else&gt;&gt;\
@@ -1019,7 +1051,8 @@ setTimeout(function() {
 [[返回|手電筒]] </tw-passagedata><tw-passagedata pid="19" name="電池" tags="" position="1300,75" size="100,100">一對似乎還有很多電的三號電池。
 
 [[舔一口|舔電池]]
-[[返回|物品欄]] </tw-passagedata><tw-passagedata pid="20" name="信內容" tags="" position="1200,525" size="100,100">
+[[返回|物品欄]] </tw-passagedata><tw-passagedata pid="20" name="信內容" tags="" position="1200,525" size="100,100">你發現這內容被塗改的差不多了。能讀出來的詞就只有「格羅夫納」 「研究院」 「動物」 「病毒」，在應該署名的地方也只能看到名字的第一個字「凱」而已。而剩下的所有內容都被塗掉了。
+
 &lt;&lt;if $truth&gt;&gt;\
 	你已經想起了一切。
 &lt;&lt;else&gt;&gt;\
@@ -1273,7 +1306,7 @@ $text袋裝小圓麵包。
 &lt;&lt;else&gt;&gt;\
 	你對這書裡反覆出現你的名字感到錯愕，但是依舊一頭霧水。這是到底是//誰//的日記本？什麼室友？到底在說什麼？
     你覺得自己的頭有點痛，但依然什麼都沒能回想起來。
-    @@color:gray;你現在還無法理解這本書的內容。你想你需要更多資訊。@@
+    @@color:gray;你現在還無法理解這本書的內容。你想你需要更多資訊以後再回來看。@@
 &lt;&lt;/if&gt;&gt;
 [[上一頁|第六頁]]
 [[闔上日記|日記(解鎖)]] </tw-passagedata><tw-passagedata pid="39" name="文件第二頁" tags="" position="700,975" size="100,100">//記錄日期：6月██日　記錄人：███//
@@ -1365,7 +1398,12 @@ $text袋裝小圓麵包。
 
 [[你應該恨我的]]
 [[對不起]]
-[[(沉默)]]</tw-passagedata><tw-passagedata pid="50" name="報警" tags="" position="1200,1100" size="100,100">你打電話過去，卻一直沒有被接起。你確認信號沒問題，這究竟是怎麼回事？
+[[(沉默)]]
+
+&lt;&lt;if not $diaryread&gt;&gt;\
+&lt;&lt;set $diaryread to true&gt;&gt;\
+&lt;&lt;set $rem=$rem+25&gt;&gt;\
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="50" name="報警" tags="" position="1200,1100" size="100,100">你打電話過去，卻一直沒有被接起。你確認信號沒問題，這究竟是怎麼回事？
 
 [[打開通訊錄]]
 [[返回|物品欄]]
@@ -1548,8 +1586,12 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 &lt;&lt;else&gt;&gt;\
 	他當然會在這裡，因為他是......一個善良到有點傻的，好人。
 &lt;&lt;/if&gt;&gt;\
-&lt;&lt;set $IDread to true&gt;&gt;
-[[返回|物品欄]]</tw-passagedata><tw-passagedata pid="61" name="打電話" tags="" position="1500,1100" size="100,100">接電話的是&lt;&lt;if $truth&gt;&gt;艾利斯塔&lt;&lt;else&gt;&gt;你從未聽過的一個聲音&lt;&lt;/if&gt;&gt;。
+[[返回|物品欄]]
+
+&lt;&lt;if not $IDread&gt;&gt;\
+&lt;&lt;set $IDread to true&gt;&gt;\
+&lt;&lt;set $rem=$rem+25&gt;&gt;\
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="61" name="打電話" tags="" position="1500,1100" size="100,100">接電話的是&lt;&lt;if $truth&gt;&gt;艾利斯塔&lt;&lt;else&gt;&gt;你從未聽過的一個聲音&lt;&lt;/if&gt;&gt;。
 
 「...格羅夫納？」
 
@@ -1643,22 +1685,25 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 
 反正他也想要你死。既然如此，那就讓他自己去承受這一切好了。
 
-&lt;&lt;set $documentread to true&gt;&gt;\
 [[返回|文件]]
 
-&lt;&lt;if $diaryread&gt;&gt;
-	&lt;&lt;set $truth to true&gt;&gt;
-    &lt;&lt;script&gt;&gt;
+&lt;&lt;if not $documentread&gt;&gt;\
+&lt;&lt;set $documentread to true&gt;&gt;\
+&lt;&lt;set $rem=$rem+50&gt;&gt;\
+&lt;&lt;/if&gt;&gt;\
+&lt;&lt;if $diaryread&gt;&gt;\
+	&lt;&lt;set $truth to true&gt;&gt;\
+    &lt;&lt;script&gt;&gt;\
 	if (window.unlockAchievement) {
         window.unlockAchievement(&quot;thetruth&quot;);
 	}
-	&lt;&lt;/script&gt;&gt;
+	&lt;&lt;/script&gt;&gt;\
     至此，你，$name，格羅夫納，終於想起了一切。還有自己身上後來到底[[發生了什麼]]。
-&lt;&lt;else&gt;&gt;
+&lt;&lt;else&gt;&gt;\
 	你的太陽穴一陣抽痛。你想起了那個名字——艾利斯塔——想起了那雙毫無反應地垂在地上的手。
     可你依然不知道自己身處何處，不知道這一切究竟是在哪裡發生的。還有，你當時是想要做什麼？
     @@color:gray;你覺得自己需要更多線索。@@
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="72" name="我們認識嗎？" tags="" position="1475,1250" size="100,100">你不覺得你認識電話裡那個人。是在你失去的記憶裡嗎？
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="72" name="我們認識嗎？" tags="" position="1475,1250" size="100,100">你不覺得你認識電話裡那個人。是在你失去的記憶裡嗎？
 
 對面沉默了良久。
 
@@ -1784,7 +1829,6 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 
 直到門鎖上，你依然站在那裡。站了不知多久，分不清是來自鮮血還是這扇鐵門的鐵銹味仍揮之不去。
 
-&lt;&lt;set $diaryread to true&gt;&gt;
 &lt;&lt;link &quot;返回&quot;&gt;&gt;&lt;&lt;goto $currentRoom&gt;&gt;&lt;&lt;/link&gt;&gt;
 
 &lt;&lt;if $documentread&gt;&gt;
@@ -1816,7 +1860,6 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 
 直到門鎖上，你依然站在那裡。站了不知多久，分不清是來自鮮血還是這扇鐵門的鐵鏽味仍揮之不去。
 
-&lt;&lt;set $diaryread to true&gt;&gt;
 &lt;&lt;link &quot;返回&quot;&gt;&gt;&lt;&lt;goto $currentRoom&gt;&gt;&lt;&lt;/link&gt;&gt;
 
 &lt;&lt;if $documentread&gt;&gt;
@@ -1840,7 +1883,6 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 
 直到門鎖上，你依然站在那裡。站了不知多久，分不清是來自鮮血還是這扇鐵門的鐵銹味仍揮之不去。
 
-&lt;&lt;set $diaryread to true&gt;&gt;
 &lt;&lt;link &quot;返回&quot;&gt;&gt;&lt;&lt;goto $currentRoom&gt;&gt;&lt;&lt;/link&gt;&gt;
 
 &lt;&lt;if $documentread&gt;&gt;
@@ -1874,7 +1916,7 @@ $name站在火光前，彷彿看到那個人熟悉的身影漸漸模糊。但是
 胸口毫無預警地一陣抽痛，畫面猛地湧了上來——你想起了[[那晚發生的事|他對你做的事]]。
 
 [[文件第三頁]]
-[[闔上|文件]]</tw-passagedata><tw-passagedata pid="85" name="去評價" tags="" position="1725,350" size="100,100">&lt;a href=&quot;https://forms.gle/U8jJrHCBX7XXFo398&quot; target=&quot;_blank&quot;&gt;Google 表單問卷&lt;/a&gt;
+[[闔上|文件]]</tw-passagedata><tw-passagedata pid="85" name="給我反饋" tags="" position="1875,225" size="100,100">&lt;a href=&quot;https://forms.gle/U8jJrHCBX7XXFo398&quot; target=&quot;_blank&quot;&gt;Google 表單問卷&lt;/a&gt;
 感謝遊玩！
 我可能會將回饋放在我的學習歷程中
 
