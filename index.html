@@ -195,7 +195,13 @@ window.executeAction = function() {
       	}else if(target==="身分證"&&!State.getVar("$IDpick")&&!State.getVar("$body")){
           	resultText = "你必須靠近屍體才能撿起";
       	}else if(currentRoom==="暗室(亮)"){
-          	resultText = "你將" + target + "撿了回來";
+           let index = roomItems.indexOf(target);
+            if (index !== -1) {
+                roomItems.splice(index, 1);
+                inventory.push(target);
+          		resultText = "你將" + target + "撿了回來";
+              	updateTargetOptions();        
+            }
       	}else{
             let index = roomItems.indexOf(target);
             if (index !== -1) {
